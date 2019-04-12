@@ -3,30 +3,30 @@ html, body {
   flex-direction: column;
   min-height: 100vh;
   margin: 0px;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
+  /* padding-left: 0.5em;
+  padding-right: 0.5em; */
   
   font-family: sans, Sans-Serif !important;
 }
 
-header, footer {
+div.loader, div.citations {
   min-height: 2em;
   padding-top: 0.5em;
   padding-bottom: 0.5em;
 }
 
-footer {
+div.citations {
   width: 100%;
   text-align: center;
 }
 
-main.content {
+div.content {
   flex: 1;
 }
 
-svg,
+svg.mainplot,
 canvas {
-  position: absolute;
+  /* position: absolute; */
   image-rendering: optimizeSpeed;
   image-rendering: crisp-edges;
   image-rendering: -moz-crisp-edges;

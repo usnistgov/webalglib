@@ -2,9 +2,14 @@
   <title>Levenberg-Marquardt weighted fitting</title>
   <link rel="stylesheet" href="app.css" />
   <script src="app.js"></script>
-  <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
-  <script src="//bmaranville.github.io/d3-science/lib/jquery-extend.js"></script>
-  <script src="//bmaranville.github.io/d3-science/lib/xy-chart.js" charset="utf-8"></script>
+  <link rel="stylesheet" href="https://pages.nist.gov/nist-header-footer/css/nist-combined.css">
+  <script src="https://pages.nist.gov/nist-header-footer/js/jquery-1.9.0.min.js" type="text/javascript" defer="defer"></script>
+  <script src="https://pages.nist.gov/nist-header-footer/js/nist-header-footer.js" type="text/javascript" defer="defer"></script>
+  
+  <script src="//d3js.org/d3.v4.min.js" charset="utf-8"></script>
+  <script src="https://cdn.jsdelivr.net/gh/usnistgov/d3-science/lib/jquery-extend.js" charset="utf-8"></script>
+  <script src="https://cdn.jsdelivr.net/gh/usnistgov/d3-science/lib/generate-id.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/usnistgov/d3-science/lib/xy-chart.js"></script>
 <script>
   ax = "[[-1],[-0.8],[-0.6],[-0.4],[-0.2],[0],[0.2],[0.4],[0.6],[0.8],[1.0]]";
   ay = "[0.223130, 0.382893, 0.582748, 0.786628, 0.941765, 1.000000, 0.941765, 0.786628, 0.582748, 0.382893, 0.223130]";
@@ -13,7 +18,7 @@
   aw = "[1,1,1,1,1,1,1,1,1,1,1]";
   au = "[1.2]";
   add_noise = true;
-  var normal = d3.random.normal(0,1);
+  var normal = d3.randomNormal(0,1);
   function gauss(c, x) {
     return (c[0] * Math.exp(-Math.pow((x - c[1]), 2) / (2.0 * Math.pow(c[2], 2))) + c[3]) 
   };
@@ -185,12 +190,12 @@
   }   
 </script>
 <body>
-  <header>
+  <div id="load_data" class="loader">
     <label>Upload tab-delimited data (x y {optional dy}) 
       <input type="file" multiple="false" id="upload_file" />
     </label>
-  </header>
-  <main class="content">
+  </div>
+  <div class="content">
     <div id="plot" class="plotdiv"></div>
     <div id="results" class="results">
       <button id="run_gaussian">Gauss fit</button>
@@ -204,11 +209,11 @@
       </label>
       <pre id="result_text"></pre>
     </div>
-  </main>
-  <footer>  Built with <a href="http://www.alglib.net/">ALGLIB</a> 
+  </div>
+  <div class="citations">  Built with <a href="http://www.alglib.net/">ALGLIB</a> 
     and <a href="https://kripken.github.io/emscripten-site/">emscripten</a>
     and <a href="https://d3js.org/">d3.js</a>; source available on 
     <a href="https://github.com/bmaranville/webalglib">github</a>
-  </footer>
+  </div>
 </body>
 </html>

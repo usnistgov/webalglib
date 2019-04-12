@@ -45,11 +45,11 @@ void function_magrefl(const real_1d_array &c, const real_1d_array &x, double &fu
     const int IP = (cross_section < 2) ? 1 : -1;
     const double KZ = x[0];
     
-    // cross-section order:  [++, +-, -+, --]
+    // calculation cross-section order:  [++, +-, -+, --]
     Cplx R[4];
     
     // use AGUIDE = 0 after calculating U1, U3;
-    Cr4xa(num_rows, D, SIGMA, IP, RHO, IRHO, RHOM, &U1[0], &U3[0], 0, KZ, R[0], R[1], R[2], R[3]);
+    Cr4xa(num_rows, D, SIGMA, IP, RHO, IRHO, RHOM, &U1[0], &U3[0], 0.0, KZ, R[0], R[1], R[2], R[3]);
     
     func = norm(R[cross_section]);
 }

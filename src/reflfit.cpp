@@ -2,6 +2,7 @@
 #include "interpolation.h"
 #include <emscripten/bind.h>
 #include <emscripten.h>
+#include <stdio.h>
 
 using std::string;
 using std::vector;
@@ -59,21 +60,40 @@ void function_refl(const real_1d_array &c, const real_1d_array &x, double &func,
     // depth, sigma, rho, irho
     // so c should always have size (4*n)
     
-    const int num_rows = ((int)c.length()) / 4;
+    const int num_rows = (c.length() - 1) / 4;
     int offset = 0;
-
+    
     const double *D     = &c[num_rows * offset++];
     const double *SIGMA = &c[num_rows * offset++ + 1]; // skip the first sigma
     const double *RHO   = &c[num_rows * offset++];
     const double *IRHO  = &c[num_rows * offset++];
     
+    const double BKG = c[num_rows*offset + 0];
+    //printf("BKG: %.12f at %d\n", BKG, num_rows * offset);
+    
     Cplx R;
     
     refl(num_rows, x[0], D, SIGMA, RHO, IRHO, R);
     
-    func = norm(R);
+    func = norm(R) + BKG;
 }
 
+void function_progress_callback(const real_1d_array &c, double func, void *ptr) {
+    int* step_ptr = (int*) ptr;
+    if ((*step_ptr) % 10 == 0) {
+        val user_defined = val::module_property("user_defined");
+        if (user_defined.hasOwnProperty("progress_callback")) {
+            val progress_callback = user_defined["progress_callback"];
+            string output = "{\n";
+            output += "  \"c\": " + c.tostring(6);
+            output += ",\n  \"f\": " + std::to_string(func);
+            output += ",\n  \"step\": " + std::to_string(*step_ptr);
+            output += "\n}";
+            progress_callback(output);
+        }
+    }
+    (*step_ptr)++;
+}
 
 void eval_func(
     fptr func,
@@ -114,7 +134,6 @@ string fit_1d(
     real_1d_array c = cs.c_str();
     real_1d_array s = ss.c_str();
         
-    double epsf = 0;
     double epsx = 0.000001;
     ae_int_t maxits = 0;
     ae_int_t info;
@@ -129,8 +148,10 @@ string fit_1d(
         lsfitsetbc(state, bndl, bndu);
     }
     alglib::lsfitsetscale(state, s);
-    lsfitsetcond(state, epsf, epsx, maxits);
-    alglib::lsfitfit(state, func, NULL, option_ptr);
+    lsfitsetcond(state, epsx, maxits);
+    lsfitsetxrep(state, true);
+    int step_counter = 0;
+    alglib::lsfitfit(state, func, function_progress_callback, &step_counter);
     lsfitresults(state, info, c, rep);
     
     real_1d_array y_fit;
@@ -155,9 +176,11 @@ string fit_refl(
     const string cs,
     const string ss,
     const string lower_bound,
-    const string upper_bound
+    const string upper_bound,
+    emscripten::val progress_callback
 )
 {
+    val::module_property("user_defined").set("progress_callback", progress_callback);
     return fit_1d(xs, ys, ws, cs, ss, lower_bound, upper_bound, function_refl);
 }
 
@@ -169,9 +192,11 @@ string fit_magrefl(
     const string cs,
     const string ss,
     const string lower_bound,
-    const string upper_bound
+    const string upper_bound,
+    emscripten::val progress_callback
 )
 {
+    val::module_property("user_defined").set("progress_callback", progress_callback);
     return fit_1d(xs, ys, ws, cs, ss, lower_bound, upper_bound, function_magrefl);
 }
 
